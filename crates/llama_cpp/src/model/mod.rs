@@ -688,10 +688,10 @@ impl LlamaModel {
             trace!("Adding {} tokens to batch", input.len());
             for (i, token) in input.iter().enumerate() {
                 batch.add(*token, i, &[batch_input_count as i32], false);
-                if batch.tokens() == batch_capacity {
+                if batch.tokens() >= batch_capacity {
                     trace!("Decoding {} embedding tokens", batch.tokens());
                     let end = submitted + batch_input_count;
-                    println!("AQUIII1 {}", &token_counts[submitted..end].len());
+                    println!("AQUIII1 {} {} {}", &token_counts[submitted..end].len(), batch.tokens(), batch_capacity);
                     out.append(&mut self.embeddings_decode(
                         context,
                         &batch,
