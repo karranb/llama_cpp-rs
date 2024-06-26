@@ -672,21 +672,33 @@ impl LlamaModel {
         let mut batch_input_count = 0;
         let mut submitted = 0;
         for input in inputs {
-            if batch.tokens() + input.len() > batch_capacity {
-                trace!("Decoding {} embedding tokens", batch.tokens());
-                let end = submitted + batch_input_count;
-                out.append(&mut self.embeddings_decode(
-                    context,
-                    &batch,
-                    &token_counts[submitted..end],
-                )?);
-                batch.clear();
-                submitted = end;
-                batch_input_count = 0;
-            }
+            // if batch.tokens() + input.len() > batch_capacity {
+            //     trace!("Decoding {} embedding tokens", batch.tokens());
+            //     let end = submitted + batch_input_count;
+            //     out.append(&mut self.embeddings_decode(
+            //         context,
+            //         &batch,
+            //         &token_counts[submitted..end],
+            //     )?);
+            //     batch.clear();
+            //     submitted = end;
+            //     batch_input_count = 0;
+            // }
 
             trace!("Adding {} tokens to batch", input.len());
             for (i, token) in input.iter().enumerate() {
+                if batch.tokens() + input.len() == batch_capacity {
+                    trace!("Decoding {} embedding tokens", batch.tokens());
+                    let end = submitted + batch_input_count;
+                    out.append(&mut self.embeddings_decode(
+                        context,
+                        &batch,
+                        &token_counts[submitted..end],
+                    )?);
+                    batch.clear();
+                    submitted = end;
+                    batch_input_count = 0;
+                }
                 batch.add(*token, i, &[batch_input_count as i32], false);
             }
             batch.set_logits(batch.tokens() - 1, true);
