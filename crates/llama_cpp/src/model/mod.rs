@@ -711,17 +711,29 @@ impl LlamaModel {
         self.embeddings_process(inputs, params)
     }
 
+    pub async fn embeddings_async(
+        &self,
+        inputs: &[impl AsRef<[u8]>],
+        params: EmbeddingsParams,
+    ) -> Result<Vec<Vec<f32>>, LlamaContextError> {
+        let inputs = self.tokenize_slice(inputs, true, false)?;
+        let model = self.clone();
+
+        tokio::task::spawn_blocking(move || model.embeddings_process(inputs, params))
+            .await
+            .unwrap()
+    }
+
+
     /// Runs embeddings inference for the given inputs, returning the result.
     ///
     /// This is a thin `tokio::spawn_blocking` wrapper around
     /// [`LlamaModel::embeddings`].
-    pub async fn embeddings_async(
+    pub async fn embeddings_token_async(
         &self,
-        // inputs: &[impl AsRef<[u8]>],
         inputs: Vec<Vec<Token>>,
         params: EmbeddingsParams,
     ) -> Result<Vec<Vec<f32>>, LlamaContextError> {
-        // let inputs = self.tokenize_slice(inputs, true, false)?;
         let model = self.clone();
 
         tokio::task::spawn_blocking(move || model.embeddings_process(inputs, params))
