@@ -675,6 +675,7 @@ impl LlamaModel {
             if batch.tokens() + input.len() > batch_capacity {
                 trace!("Decoding {} embedding tokens", batch.tokens());
                 let end = submitted + batch_input_count;
+                println!("Batch size {}", batch.tokens());
                 out.append(&mut self.embeddings_decode(
                     context,
                     &batch,
@@ -692,7 +693,7 @@ impl LlamaModel {
         }
         if 0 < batch_input_count {
             trace!("Decoding remaining {} embedding tokens", batch.tokens());
-            println!("AQUIII2 {}", &token_counts[submitted..].len());
+            println!("batch size 2 {}", batch.tokens());
             out.append(&mut self.embeddings_decode(
                 context,
                 &batch,
