@@ -703,7 +703,7 @@ impl LlamaModel {
                     batch_input_count = 0;
                 }
             }
-            // batch.set_logits(batch.tokens() - 1, true);
+            batch.set_logits(batch.tokens() - 1, true);
         }
         if 0 < batch_input_count {
             trace!("Decoding remaining {} embedding tokens", batch.tokens());
