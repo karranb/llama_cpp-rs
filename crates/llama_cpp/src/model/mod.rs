@@ -687,9 +687,9 @@ impl LlamaModel {
             batch_input_count += 1;
             trace!("Adding {} tokens to batch", input.len());
             for (i, token) in input.iter().enumerate() {
-                let logits = batch.tokens() >= batch_capacity - 1;
-                batch.add(*token, i, &[batch_input_count as i32], logits);
-                if logits {
+                // let logits = ;
+                batch.add(*token, i, &[batch_input_count as i32], false);
+                if batch.tokens() >= batch_capacity  {
                     trace!("Decoding {} embedding tokens", batch.tokens());
                     let end = submitted + batch_input_count;
                     println!("AQUIII1 {:?} {} {}", &token_counts[submitted..end], batch.tokens(), batch_capacity);
@@ -698,6 +698,7 @@ impl LlamaModel {
                         &batch,
                         &token_counts[submitted..end],
                     )?);
+                    println!("AQUIII1.1");
                     batch.clear();
                     submitted = end;
                     batch_input_count = 0;
